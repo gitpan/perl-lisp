@@ -1,7 +1,9 @@
 package Lisp::Printer;
 
 use strict;
-use vars qw(@EXPORT_OK);
+use vars qw(@EXPORT_OK $VERSION);
+
+$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
 
 use Lisp::Symbol qw(symbolp);
 use Lisp::Vector qw(vectorp);
@@ -26,7 +28,7 @@ sub lisp_print
 	    $str = $obj->name;
 	} elsif (vectorp($obj)) {
 	    $str = "[" . join(" ", map lisp_print($_), @$obj) . "]";
-	} elsif (consp($obj)) {
+	} elsif (ref($obj) eq "Lisp::Cons") {
 	    $str = "(" .join(" . ", map lisp_print($_), @$obj). ")";
 	} elsif (ref($obj) eq "ARRAY") {
 	    $str = "(" . join(" ", map lisp_print($_), @$obj) . ")";

@@ -1,6 +1,8 @@
 package Lisp::Symbol;
 use strict;
-use vars qw(@EXPORT_OK %obarray);
+use vars qw(@EXPORT_OK %obarray $VERSION);
+
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 require Carp;
 require Exporter;
@@ -79,6 +81,32 @@ sub put
 {
     my $self = shift;
     $self->{'plist'}{$_[0]} = $_[1];
+}
+
+sub dump_symbols
+{
+    print join("", map $obarray{$_}->as_string, sort keys %obarray);
+}
+
+sub as_string
+{
+    my $self = shift;
+    require Lisp::Printer;
+    my @str;
+    push(@str, "$self->{'name'}\n");
+    if (exists $self->{'value'}) {
+	push(@str, "\tvalue: " .
+	     Lisp::Printer::lisp_print($self->{'value'}) . "\n");
+    }
+    if (exists $self->{'function'}) {
+	push(@str, "\tfunction: " .
+	     Lisp::Printer::lisp_print($self->{'function'}) . "\n");
+    }
+    if (exists $self->{'plist'}) {
+	push(@str, "\tplist: " .
+	     Lisp::Printer::lisp_print($self->{'plist'}) . "\n");
+    }
+    join("", @str);
 }
 
 1;

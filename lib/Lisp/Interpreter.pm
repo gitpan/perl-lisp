@@ -1,14 +1,17 @@
 package Lisp::Interpreter;
 
 use strict;
-use vars qw($DEBUG @EXPORT_OK);
+use vars qw($DEBUG @EXPORT_OK $VERSION);
+
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 
 use Lisp::Symbol  qw(symbol symbolp);
 use Lisp::Printer qw(lisp_print);
+use Lisp::Special qw(specialp);
 
 require Exporter;
 *import = \&Exporter::import;
-@EXPORT_OK = qw(lisp_eval);
+@EXPORT_OK = qw(lisp_eval lisp_read_eval_print);
 
 my $macro  = symbol("macro");
 my $lambda = symbol("lambda");
@@ -46,7 +49,7 @@ sub lisp_eval
 	}
     }
 
-    unless (UNIVERSAL::isa($func, "Lisp::Special") || $func == $macro) {
+    unless (specialp($func) || $func == $macro) {
 	# evaluate all arguments
 	for (@args) {
 	    if (ref($_)) {
@@ -62,22 +65,19 @@ sub lisp_eval
     }
 
     my $res;
-    if (ref($func) eq "CODE" || UNIVERSAL::isa($func, "Lisp::Special")) {
+    if (UNIVERSAL::isa($func, "CODE")) {
 	$res = &$func(@args);
     } elsif (ref($func) eq "ARRAY") {
 	if ($func->[0] == $lambda) {
 	    $res = lambda($func, \@args)
 	} else {
-	    my $str = lisp_print($func);
-	    die "invalid-list-function ($str)";
+	    die "invalid-list-function (@{[lisp_print($func)]})";
 	}
     } else {
-	my $str = lisp_print($func);
-	die "invalid-function ($str)";
+	die "invalid-function (@{[lisp_print($func)]})";
     }
     if ($DEBUG) {
-	my $str = lisp_print($res);
-	print " $no ==> $str\n";
+	print " $no ==> @{[lisp_print($res)]}\n";
     }
     $res;
 }
@@ -122,6 +122,15 @@ sub lambda  # calling a lambda expression
 	$pc++;
     }
     $res;
+}
+
+
+sub lisp_read_eval_print
+{
+    require Lisp::Reader;
+    my $form = Lisp::Reader::lisp_read(join(" ", @_));
+    unshift(@$form, symbol("progn")) if ref($form->[0]) eq "ARRAY";
+    lisp_print(lisp_eval($form));
 }
 
 1;
