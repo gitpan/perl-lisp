@@ -8,7 +8,7 @@ Gnus::Newsrc - parse ~/.newsrc.eld files
 
   $newsrc = Gnus::Newsrc->new;
   ($level, $read, $marks, $server, $group_para) =
-     @{$newsrc->alish_hash->{"comp.lang.perl.misc"}};
+     @{$newsrc->alist_hash->{"comp.lang.perl.misc"}};
 
 =head1 DESCRIPTION
 
@@ -24,7 +24,7 @@ The following methods are provided:
 use strict;
 use vars qw($VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
 
 use Lisp::Reader qw(lisp_read);
 
@@ -232,7 +232,7 @@ __END__
 
 =head1 SEE ALSO
 
-L<Lisp::Reader>, L<Set::IntSpan>, http://www.gnus.org
+L<Set::IntSpan>, http://www.gnus.org
 
 =head1 COPYRIGHT
 
